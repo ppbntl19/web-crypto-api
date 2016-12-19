@@ -5,22 +5,60 @@
 <html>
 <head>
     <title>Digital Signature</title>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+    <script src="https://formyoula-mobile-pooran-rumdumdum.c9users.io/app/vendor/signature-pad/jquery.signaturepad.min.js"></script>
+    <script src="https://formyoula-mobile-pooran-rumdumdum.c9users.io/app/vendor/signature-pad/json2.min.js"></script>
     <script src="digitalsign.js"></script>
 </head>
 
 <body>
     <h1>Digital Signature</h1>
 
-    <section id="sign-and-verify">
-        <input type="file" id="source-file"/>
-        <button id="sign">Sign File</button>
+      <section id="sign-and-verify">
+        <div id="signaturePad_canvas"  class="sigPad signed"> 
+        <div class="typed"></div>
+          <canvas class="pad" width="300" height="100"></canvas>
+          <input type="hidden" name="output" class="output" id="output">
+        </div>
+        <button id="sign">Sign Signature</button>
         <button id="verify">Verify Signature</button>
     </section>
 
-    <section id="results">
-        Download results:
-        <ul id="download-links">
-        </ul>
-    </section>
+    
+<script>
+  $(document).ready(function() {
+    var api_signature =$('.sigPad').signaturePad({
+    drawOnly:true,
+    bgColour:'transparent',
+    onDrawEnd: function(){
+        //
+    }
+    
+  });
+  //For testing
+// var obhect = {"_id":"58529b3702d0523a54f1a476","public_key":"-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDJgVhFesxPnBqliJtKPdiQK1C+\nB67qJ1/VZ6yZAy7M6dCCsaIQBfIGgZSY8JWC2nuGtLWbz+XDSm1wzp09BUx4VSF6\nb74gv9/dHQ8HyUKY7mNQiBRx6f9I9mTy4ZgJg/NGFrdZsF7c/bHnBXI4Vm+dcgpa\ny1Nq5+t1G30PPL9DZwIDAQAB\n-----END PUBLIC KEY-----\n","private_key":"-----BEGIN RSA PRIVATE KEY-----\nMIICXQIBAAKBgQDJgVhFesxPnBqliJtKPdiQK1C+B67qJ1/VZ6yZAy7M6dCCsaIQ\nBfIGgZSY8JWC2nuGtLWbz+XDSm1wzp09BUx4VSF6b74gv9/dHQ8HyUKY7mNQiBRx\n6f9I9mTy4ZgJg/NGFrdZsF7c/bHnBXI4Vm+dcgpay1Nq5+t1G30PPL9DZwIDAQAB\nAoGBAMNWYua/us21y1MK0VcwCv7/Ln943URaNRmgLf4KytSUGLCJWExmJw/Nj+qO\n1rEJ8VNNXPwVlmsxfFQtxtm/iDcqGwwM1cv67TFKkQR7nob6l/iLNXTUrBvAzEK/\ne+pTPs1uJlRC3WtSddTsNPhHJZs7LP8E1GEIR8WVjBWWakDBAkEA5LIQEpEHoVDb\ngTOLnN871segPgEN8nqHtnZ29pMDaa08MxinhOGl5N4umNyoepuKNmD9pWauecET\nFCDzX+Z8xwJBAOGQOjEBTUpxip8wRCHVsvkb3g1PeYIaNVlRS0Ej28q79L8Tu2N/\nMF4/RFlxxAQ2e5YuFGM8iIsgZv7xhfIyJGECQQCrgxcmtXnhc4CLrxqfdZOtCl2U\n4rmRBm/NWZ7yYWMH2BHzyCOqNohx0mdj4OjBuvC2w5q2dwGW8kParrOXUoZ1AkB4\nhiIx0SpFXsndKWMeWRtadAOARTj9xZc/9Gorkkd82lV6S8bS8UEc+t1AlcNRJPOA\nWXrXU576CARAsTkLIrPBAkBxaBA+6zlHGzf7pH311i3xCdBj7KazcWDBqfIfG7OS\nijkOuc/3mB8/ZhqcDK7XfreA8ru/fHptMyYVsuoxhUrP\n-----END RSA PRIVATE KEY-----\n","organisaton":"00D2800000119GtEAI","userId":"58529b3602d0523a54f1a474","__v":0,"status":true,"created_at":"2016-12-15T13:31:35.394Z"}
+// var object2 = {"_id":"5853eb09119c8c12989dbf65","public_key":{"kty":"RSA","n":"AOpBiWDWaiVw1TD0lVAljuz0BfKmW2bDEfd_OjmMTNfID_WisGanvPhqZB1NxOfrYHA6tX7xL6-VYEL-rKqx2QTnJ9mF4RYQ7HAgdH8OyiKNI_a5Jgx4sePQs6CTGYyULIqEmEAVzg6gFSF8gpJJz-FNXPEqIXGIiLmonKKIVhdR","e":"AQAB"},"private_key":{"kty":"RSA","n":"AOpBiWDWaiVw1TD0lVAljuz0BfKmW2bDEfd_OjmMTNfID_WisGanvPhqZB1NxOfrYHA6tX7xL6-VYEL-rKqx2QTnJ9mF4RYQ7HAgdH8OyiKNI_a5Jgx4sePQs6CTGYyULIqEmEAVzg6gFSF8gpJJz-FNXPEqIXGIiLmonKKIVhdR","e":"AQAB","d":"JzCXnw-_6kuaHvqMEEB4TMP2SsXx_Jsd4l3yi7YhFOhvYxS4ljPxtU13Oj_MdVA3bg8kVfxbkfBXjl203UmrmIhsWg__b_RiH75wDSqjJ2MLjGZL6UWw_9rz0Vugjz-q_trWJAB9SJ4pXnkQkf_B-XXai0r5WInVr-DUmklR4QE","p":"APtLHzY2t7kgyLItbiF32FlHooeC6xs3Nd9tj5cyVNS5-ReCthMt8zKVeUL-KK2eE5OOZj1vUUMmv_UoEXFOtBk","q":"AO6kuaY1h9CyD3YgsHqfe0cgDeqmCSNVYMxL2YT270RMZ0LwZPa76djbuziDIHkT-06uS0k8pQG2LdnUgXKlo_k","dp":"AMujy-5OF0KR27HweN_sU8m98GrqYAYVDrY5_fPj2LTu5Hn19gDC6uMiGDt-5Y4UnP6llhrQ-8R0QXi0-LWetvk","dq":"AMc-dtXjaaJ_l9Mbldy7XJTUmWno-EYs2WWYimKuPLQ8ShakWNd7qtFpG5YiPLF6Ul6tvKPH40hbj0qIVw-eZhk","qi":"CST7ShlkhLMb3Vi49BLX8WvXL8JCZX2QOA5JWC5xWi9ix9g1D9l9HYP86TPg4uzrpxz-0YyJWlpPPfq9H1QtJA"},"organisaton":"00D2800000119GtEAI","userId":"5853eb09119c8c12989dbf63","__v":0,"status":true,"created_at":"2016-12-16T13:24:25.697Z"};
+// var enc = new TextEncoder("utf-8");
+// var key_buffer = enc.encode(obhect.private_key);
+// window.crypto.subtle.importKey(
+//     "jwk", //can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
+//   object2.private_key,
+//     {   //these are the algorithm options
+//         name: "RSASSA-PKCS1-v1_5",
+//         hash: {name: "SHA-256"}, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+//     },
+//     false, //whether the key is extractable (i.e. can be used in exportKey)
+//     ["sign"] //"verify" for public key import, "sign" for private key imports
+// )
+// .then(function(privateKey){
+//     //returns a publicKey (or privateKey if you are importing a private key)
+//     console.log(privateKey);
+// })
+// .catch(function(err){
+//     console.error(err);
+// });
+})
+  </script>
 </body>
 </html>

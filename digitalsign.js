@@ -1,12 +1,3 @@
-// Digital Signatures with Web Cryptography API
-//
-// Copyright 2014 Info Tech, Inc.
-// Provided under the MIT license.
-// See LICENSE file for details.
-
-// Will create a random key pair for digital signing and
-// verification. A file can be selected and then signed, or
-// a signed file can be verified, with that key pair.
 
 document.addEventListener("DOMContentLoaded", function() {
     "use strict";
@@ -21,71 +12,93 @@ document.addEventListener("DOMContentLoaded", function() {
         return;
     }
 
-    var keyPair;    // Used by several handlers later
+    var keyPair = {};    // Used by several handlers later
+    var signature;
+    var plaintext_buffer;
+    //DB object
+    var object = {"_id":"5854119a6d2ce3159b41df11","public_key":{"kty":"RSA","n":"o62MPW_432uABUKOJd0SSXttpHtKG9AVKjKZOw13Qx-ntBqPSXhiEmGKEV_cbelUReGPQQ8_EYN7LtM_ELbWKlc5oH6B982zwU_QjQoluCkx0RZz0BeOP4qkCiBpu-kpQnoUqHD2wRFuhJ950hBbYC8dyIGkfDoL_h5hYJeoZc8","e":"AQAB"},"private_key":{"kty":"RSA","n":"o62MPW_432uABUKOJd0SSXttpHtKG9AVKjKZOw13Qx-ntBqPSXhiEmGKEV_cbelUReGPQQ8_EYN7LtM_ELbWKlc5oH6B982zwU_QjQoluCkx0RZz0BeOP4qkCiBpu-kpQnoUqHD2wRFuhJ950hBbYC8dyIGkfDoL_h5hYJeoZc8","e":"AQAB","d":"Ofd6lT-UmjuOKU663PoAQfnuiLQJOPRmqn0k-173f9Q0JnrJiDGUOgJFTYXvoRVjfSQ3AcmOgntYIus5iIfYLLGb5uHILZ7P9NOc-pVzJ6qWHLU0DMr6hAb2492XZPODT6WNSm1-Uh85RC_gceju4VVLd8aOe6tz5RTpvU1V57E","p":"ztAeJzKlCX6JDPMiX4blXm50kTfPSgPNwZ239l7kDoD-ZB1M7Cx2HSVwMyLLG8ZKajApMkan9s3s7yRySg-ljQ","q":"ypsjM70Cb-EWx5lLfeL_M1l2NIhUMsd-c_9XTHw-r3CehSK0XZURS7xkHIWY12k6V4bKlyUn6a-URmQxv8Nbyw","dp":"XIo5g9agjIAHOTkt_0qwJbINDNHJOlg7YFB_eYl6SJclvYxy2BcI_v-6ldcSxSnUMHG-bVW6YLBCPbu0PDmGHQ","dq":"qEQSB105ketx_NFeti15X480McrrisTOS85MFZS2hwRUUyQQggxUsf7DckCuQHD_aEPlK4RLUrRkw9Vgz--S4w","qi":"b74z6dgY7Bjru2sKQJWVHxwH12OM9TWmCxVmWKv017n_D82HMwfjBKJ99aOyHKQiTmj37DzgmAvWnUvzhsAiAw"},"organisaton":"00D2800000119GtEAI","userId":"5854119a6d2ce3159b41df0f","__v":0,"status":true,"created_at":"2016-12-16T16:08:58.437Z"};
 
-    createAndSaveAKeyPair().
+    
+    importprivateKeyAndSaveAKeyPair().
     then(function() {
         // Only enable the cryptographic operation buttons if a key pair can be created
         document.getElementById("sign").addEventListener("click", signTheFile);
-        document.getElementById("verify").addEventListener("click", verifyTheFile);
     }).
     catch(function(err) {
         alert("Could not create a keyPair or enable buttons: " + err.message + "\n" + err.stack);
     });
 
-
+    importpublicKeyAndSaveAKeyPair().
+    then(function() {
+        // Only enable the cryptographic operation buttons if a key pair can be created
+        document.getElementById("verify").addEventListener("click", verifyTheSignature);
+    }).
+    catch(function(err) {
+        alert("Could not create a keyPair or enable buttons: " + err.message + "\n" + err.stack);
+    });
 
     // Key pair creation:
 
-    function createAndSaveAKeyPair() {
-        // Returns a promise.
-        // Takes no input, yields a key pair to the then handler.
-        // Side effect: updates keyPair in enclosing scope with new value.
-
-        return window.crypto.subtle.generateKey(
-            {
+    function importprivateKeyAndSaveAKeyPair() {
+      //Import private key
+      return window.crypto.subtle.importKey(
+          "jwk", //can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
+          object.private_key,
+          {   //these are the algorithm options
+              name: "RSASSA-PKCS1-v1_5",
+              hash: {name: "SHA-256"}, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+          },
+          false, //whether the key is extractable (i.e. can be used in exportKey)
+          ["sign"] //"verify" for public key import, "sign" for private key imports
+      )
+      .then(function(privateKey){
+          //returns a publicKey (or privateKey if you are importing a private key)
+           keyPair.privateKey = privateKey;
+      })
+      .catch(function(err){
+          console.error(err);
+      });
+    }
+    
+    function importpublicKeyAndSaveAKeyPair() {
+      //Import public key
+      return window.crypto.subtle.importKey(
+            "jwk", //can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
+           object.public_key,
+            {   //these are the algorithm options
                 name: "RSASSA-PKCS1-v1_5",
-                modulusLength: 2048,
-                publicExponent: new Uint8Array([1, 0, 1]),  // 24 bit representation of 65537
-                hash: {name: "SHA-256"}
+                hash: {name: "SHA-256"}, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
             },
-            true,   // can extract it later if we want
-            ["sign", "verify"]).
-        then(function (key) {
-            keyPair = key;
-            return key;
+            false, //whether the key is extractable (i.e. can be used in exportKey)
+            ["verify"] //"verify" for public key import, "sign" for private key imports
+        )
+        .then(function(publicKey){
+            //returns a publicKey (or privateKey if you are importing a private key)
+             keyPair.publicKey = publicKey;
+        })
+        .catch(function(err){
+            console.error(err);
         });
     }
 
 
 
     // Click handlers to sign or verify the given file:
-
     function signTheFile() {
-        // Click handler. Reads the selected file, then signs it to
-        // the random key pair's private key. Creates a Blob with the result,
-        // and places a link to that Blob in the download-results section.
+        var plaintext = document.querySelector('.output').value
+        //Convert text in to array buffer
+        var enc = new TextEncoder("utf-8");
+        plaintext_buffer = enc.encode(plaintext);
 
-        var sourceFile = document.getElementById("source-file").files[0];
-
-        var reader = new FileReader();
-        reader.onload = processTheFile;
-        reader.readAsArrayBuffer(sourceFile);
-
+        processTheSignature()
         // Asynchronous handler:
-        function processTheFile() {
-            // Load handler for file reader. Needs to reference keyPair from
-            // enclosing scope.
-
-            var reader = this;              // Was invoked by the reader object
-            var plaintext = reader.result;
-
+        function processTheSignature() {
+      
             sign(plaintext, keyPair.privateKey).
-            then(function(blob) {
-                var url = URL.createObjectURL(blob);
-                document.getElementById("download-links").insertAdjacentHTML(
-                    'beforeEnd',
-                    '<li><a href="' + url + '">Signed file</a></li>');
+            then(function(hash) {
+              alert("signature signed.If you will make any changes in given signature  it will become invalid");
+              signature = hash;
+              return hash;
             }).
             catch(function(err) {
                 alert("Something went wrong signing: " + err.message + "\n" + err.stack);
@@ -93,37 +106,20 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
             function sign(plaintext, privateKey) {
-                // Returns a Promise that yields a Blob to its
-                // then handler. The Blob points to an signed
-                // representation of the file. The structure of the
-                // Blob's content's structure:
-                //    16 bit integer length of the digital signature
-                //    Digital signature
-                //    Original plaintext
-
-                return window.crypto.subtle.sign(
-                    {name: "RSASSA-PKCS1-v1_5"},
-                    privateKey,
-                    plaintext).
-                then(packageResults);
-
-
-                function packageResults(signature) {
-                    // Returns a Blob representing the package of
-                    // the signature it is provided and the original
-                    // plaintext (in an enclosing scope).
-
-                    var length = new Uint16Array([signature.byteLength]);
-                    return new Blob(
-                        [
-                            length,     // Always a 2 byte unsigned integer
-                            signature,  // "length" bytes long
-                            plaintext   // Remainder is the original plaintext
-                        ],
-                        {type: "application/octet-stream"}
-                    );
-                }
-
+              return  window.crypto.subtle.sign(
+                  {
+                      name: "RSASSA-PKCS1-v1_5",
+                  },
+                  privateKey, //from generateKey or importKey above
+                  plaintext_buffer //ArrayBuffer of data you want to sign
+              )
+              .then(function(signature){
+                  //returns an ArrayBuffer containing the signature
+                  return new Uint8Array(signature)
+              })
+              .catch(function(err){
+                  console.error(err);
+              });
             } // End of sign
         } // end of processTheFile
     } // end of signTheFile click handler
@@ -131,41 +127,21 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 
-    function verifyTheFile() {
-        // Click handler. Reads the selected file, then verify the digital
-        // signature using the random key pair's public key. Shows an alert
-        // saying whether the signature is valid or not. If the signature is
-        // valid, it also creates a Blob with the original file
-        // and places a link to that Blob in the download-results section.
+    function verifyTheSignature() {
+      var plaintext = document.querySelector('.output').value
+      //Convert text in to array buffer
+      var enc = new TextEncoder("utf-8");
+      plaintext_buffer = enc.encode(plaintext);
+      //Change textand convert in to array buffer
+        processTheSignature();
+        function processTheSignature() {
 
-        var sourceFile = document.getElementById("source-file").files[0];
-
-        var reader = new FileReader();
-        reader.onload = processTheFile;
-        reader.readAsArrayBuffer(sourceFile);
-
-
-        function processTheFile() {
-            // Load handler for file reader. Needs to reference keyPair from
-            // enclosing scope.
-            var reader = this;              // Invoked by the reader object
-            var data = reader.result;
-
-            // First, separate out the relevant pieces from the file.
-            var signatureLength = new Uint16Array(data, 0, 2)[0];   // First 16 bit integer
-            var signature       = new Uint8Array( data, 2, signatureLength);
-            var plaintext       = new Uint8Array( data, 2 + signatureLength);
-
-            verify(plaintext, signature, keyPair.publicKey).
-            then(function(blob) {
-                if (blob === null) {
+            verify(plaintext_buffer, signature, keyPair.publicKey).
+            then(function(isValid) {
+                if (isValid === null) {
                     alert("Invalid signature!");
                 } else {
                     alert("Signature is valid.");
-                    var url = URL.createObjectURL(blob);
-                    document.getElementById("download-links").insertAdjacentHTML(
-                        'beforeEnd',
-                        '<li><a href="' + url + '">Verified file</a></li>');
                 }
             }).
             catch(function(err) {
@@ -187,12 +163,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 ).
                 then(handleVerification);
 
-
                 function handleVerification(successful) {
                     // Returns either a Blob containing the original plaintext
                     // (if verification was successful) or null (if not).
                     if (successful) {
-                        return new Blob([plaintext], {type: "application/octet-stream"});
+                        return successful
                     } else {
                         return null;
                     }
