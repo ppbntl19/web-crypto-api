@@ -1,3 +1,4 @@
+//Copyright 2014 Poran Prakash(https://github.com/ppbntl19/). Provided under the MIT license. See LICENSE file for details
 
 document.addEventListener("DOMContentLoaded", function() {
     "use strict";
@@ -15,8 +16,29 @@ document.addEventListener("DOMContentLoaded", function() {
     var keyPair = {};    // Used by several handlers later
     var signature;
     var plaintext_buffer;
-    //DB object
-    var object = {"_id":"5854119a6d2ce3159b41df11","public_key":{"kty":"RSA","n":"o62MPW_432uABUKOJd0SSXttpHtKG9AVKjKZOw13Qx-ntBqPSXhiEmGKEV_cbelUReGPQQ8_EYN7LtM_ELbWKlc5oH6B982zwU_QjQoluCkx0RZz0BeOP4qkCiBpu-kpQnoUqHD2wRFuhJ950hBbYC8dyIGkfDoL_h5hYJeoZc8","e":"AQAB"},"private_key":{"kty":"RSA","n":"o62MPW_432uABUKOJd0SSXttpHtKG9AVKjKZOw13Qx-ntBqPSXhiEmGKEV_cbelUReGPQQ8_EYN7LtM_ELbWKlc5oH6B982zwU_QjQoluCkx0RZz0BeOP4qkCiBpu-kpQnoUqHD2wRFuhJ950hBbYC8dyIGkfDoL_h5hYJeoZc8","e":"AQAB","d":"Ofd6lT-UmjuOKU663PoAQfnuiLQJOPRmqn0k-173f9Q0JnrJiDGUOgJFTYXvoRVjfSQ3AcmOgntYIus5iIfYLLGb5uHILZ7P9NOc-pVzJ6qWHLU0DMr6hAb2492XZPODT6WNSm1-Uh85RC_gceju4VVLd8aOe6tz5RTpvU1V57E","p":"ztAeJzKlCX6JDPMiX4blXm50kTfPSgPNwZ239l7kDoD-ZB1M7Cx2HSVwMyLLG8ZKajApMkan9s3s7yRySg-ljQ","q":"ypsjM70Cb-EWx5lLfeL_M1l2NIhUMsd-c_9XTHw-r3CehSK0XZURS7xkHIWY12k6V4bKlyUn6a-URmQxv8Nbyw","dp":"XIo5g9agjIAHOTkt_0qwJbINDNHJOlg7YFB_eYl6SJclvYxy2BcI_v-6ldcSxSnUMHG-bVW6YLBCPbu0PDmGHQ","dq":"qEQSB105ketx_NFeti15X480McrrisTOS85MFZS2hwRUUyQQggxUsf7DckCuQHD_aEPlK4RLUrRkw9Vgz--S4w","qi":"b74z6dgY7Bjru2sKQJWVHxwH12OM9TWmCxVmWKv017n_D82HMwfjBKJ99aOyHKQiTmj37DzgmAvWnUvzhsAiAw"},"organisaton":"00D2800000119GtEAI","userId":"5854119a6d2ce3159b41df0f","__v":0,"status":true,"created_at":"2016-12-16T16:08:58.437Z"};
+    
+    //Keypair in json format generated on server side using ursa rsa key genrator
+    var object = {
+      "public_key":{
+        "kty":"RSA",
+        "n":"o62MPW_432uABUKOJd0SSXttpHtKG9AVKjKZOw13Qx-ntBqPSXhiEmGKEV_cbelUReGPQQ8_EYN7LtM_ELbWKlc5oH6B982zwU_QjQoluCkx0RZz0BeOP4qkCiBpu-kpQnoUqHD2wRFuhJ950hBbYC8dyIGkfDoL_h5hYJeoZc8",
+        "e":"AQAB"
+        },
+      "private_key":{
+        "kty":"RSA",
+        "n":"o62MPW_432uABUKOJd0SSXttpHtKG9AVKjKZOw13Qx-ntBqPSXhiEmGKEV_cbelUReGPQQ8_EYN7LtM_ELbWKlc5oH6B982zwU_QjQoluCkx0RZz0BeOP4qkCiBpu-kpQnoUqHD2wRFuhJ950hBbYC8dyIGkfDoL_h5hYJeoZc8",
+        "e":"AQAB",
+        "d":"Ofd6lT-UmjuOKU663PoAQfnuiLQJOPRmqn0k-173f9Q0JnrJiDGUOgJFTYXvoRVjfSQ3AcmOgntYIus5iIfYLLGb5uHILZ7P9NOc-pVzJ6qWHLU0DMr6hAb2492XZPODT6WNSm1-Uh85RC_gceju4VVLd8aOe6tz5RTpvU1V57E",
+        "p":"ztAeJzKlCX6JDPMiX4blXm50kTfPSgPNwZ239l7kDoD-ZB1M7Cx2HSVwMyLLG8ZKajApMkan9s3s7yRySg-ljQ",
+        "q":"ypsjM70Cb-EWx5lLfeL_M1l2NIhUMsd-c_9XTHw-r3CehSK0XZURS7xkHIWY12k6V4bKlyUn6a-URmQxv8Nbyw",
+        "dp":"XIo5g9agjIAHOTkt_0qwJbINDNHJOlg7YFB_eYl6SJclvYxy2BcI_v-6ldcSxSnUMHG-bVW6YLBCPbu0PDmGHQ",
+        "dq":"qEQSB105ketx_NFeti15X480McrrisTOS85MFZS2hwRUUyQQggxUsf7DckCuQHD_aEPlK4RLUrRkw9Vgz--S4w",
+        "qi":"b74z6dgY7Bjru2sKQJWVHxwH12OM9TWmCxVmWKv017n_D82HMwfjBKJ99aOyHKQiTmj37DzgmAvWnUvzhsAiAw"
+      },
+      "__v":0,
+      "status":true,
+      "created_at":"2016-12-16T16:08:58.437Z"
+    };
 
     
     importprivateKeyAndSaveAKeyPair().

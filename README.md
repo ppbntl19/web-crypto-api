@@ -1,3 +1,7 @@
+This project using https://github.com/thread-pond/signature-pad form  creating  signature.
+RSA key genrated on server side using
+https://github.com/quartzjer/ursa and https://github.com/dannycoates/pem-jwk
+
 Digital Signature in the Browser
 ================================
 
@@ -22,6 +26,4 @@ run the example.
 be helpful to developers who intend to create their own tools using
 the Web Cryptography API.
 
-Copyright (c) 2014 Info Tech, Inc.
-Provided under the MIT license.
-See LICENSE file for details.
+
