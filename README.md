@@ -1,4 +1,4 @@
-This project using https://github.com/thread-pond/signature-pad form  creating  signature.
+This project using https://github.com/thread-pond/signature-pad for  creating  signature.
 RSA key genrated on server side using
 https://github.com/quartzjer/ursa and https://github.com/dannycoates/pem-jwk
 
