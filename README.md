@@ -1,4 +1,9 @@
-This project using https://github.com/thread-pond/signature-pad form  creating  signature.
+This project using foloowng library .
+https://github.com/thread-pond/signature-pad form  creating  signature.
+https://github.com/kjur/jsrsasign for signing and validating
+Web crypto Api for  signing  and  validatin.
+https://github.com/travist/jsencrypt  for signing and  validating
+
 RSA key genrated on server side using
 https://github.com/quartzjer/ursa and https://github.com/dannycoates/pem-jwk
 
